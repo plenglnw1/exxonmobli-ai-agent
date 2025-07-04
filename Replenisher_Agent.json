@@ -1,0 +1,320 @@
+{
+  "name": "Replenisher_Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "replenisher-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        0
+      ],
+      "id": "76427a36-a82f-4260-89bb-22965f737d52",
+      "name": "Webhook",
+      "webhookId": "848c956e-ff51-46f4-88ad-c5dc2571369f"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analyze material requirements and determine replenishment strategy\nconst requestData = $input.first().json;\nconst materialsInfo = requestData.materials_info;\nconst taskData = requestData.task_data;\n\n// Mock supplier database (ในการใช้งานจริงจะเชื่อมต่อกับ ERP/Database)\nconst supplierDatabase = {\n  'Raw Material A': {\n    suppliers: [\n      { name: 'Supplier Alpha', lead_time: 7, unit_cost: 150, reliability: 0.95 },\n      { name: 'Supplier Beta', lead_time: 10, unit_cost: 140, reliability: 0.90 }\n    ],\n    minimum_order: 1000,\n    category: 'raw_materials'\n  },\n  'Component B': {\n    suppliers: [\n      { name: 'Component Corp', lead_time: 14, unit_cost: 75, reliability: 0.98 },\n      { name: 'Parts Plus', lead_time: 21, unit_cost: 65, reliability: 0.85 }\n    ],\n    minimum_order: 500,\n    category: 'components'\n  },\n  'Chemical C': {\n    suppliers: [\n      { name: 'ChemCorp', lead_time: 5, unit_cost: 200, reliability: 0.99 },\n      { name: 'Chemical Solutions', lead_time: 7, unit_cost: 185, reliability: 0.92 }\n    ],\n    minimum_order: 100,\n    category: 'chemicals'\n  }\n};\n\n// Find material in database\nconst materialKey = Object.keys(supplierDatabase).find(key => \n  key.toLowerCase().includes(materialsInfo.primary_material.toLowerCase()) ||\n  materialsInfo.primary_material.toLowerCase().includes(key.toLowerCase())\n);\n\nconst materialData = supplierDatabase[materialKey] || {\n  suppliers: [{ name: 'Generic Supplier', lead_time: 14, unit_cost: 100, reliability: 0.80 }],\n  minimum_order: 1000,\n  category: 'unknown'\n};\n\n// Calculate requirements\nconst shortageQty = materialsInfo.shortage_quantity || 1000;\nconst bufferStock = Math.ceil(shortageQty * 0.2); // 20% buffer\nconst totalRequired = shortageQty + bufferStock;\n\n// Determine urgency level\nconst requiredBy = new Date(materialsInfo.required_by || Date.now() + 30*24*60*60*1000);\nconst daysUntilRequired = Math.ceil((requiredBy - new Date()) / (24*60*60*1000));\nconst urgencyLevel = daysUntilRequired <= 7 ? 'CRITICAL' : \n                    daysUntilRequired <= 14 ? 'HIGH' : 'MEDIUM';\n\n// Select best supplier based on urgency and reliability\nconst bestSupplier = materialData.suppliers.sort((a, b) => {\n  if (urgencyLevel === 'CRITICAL') {\n    // For critical items, prioritize lead time and reliability\n    return (a.lead_time * (1 - a.reliability)) - (b.lead_time * (1 - b.reliability));\n  } else {\n    // For normal items, balance cost and reliability\n    return (a.unit_cost / a.reliability) - (b.unit_cost / b.reliability);\n  }\n})[0];\n\n// Create analysis result\nconst analysisResult = {\n  ...requestData,\n  material_analysis: {\n    material_found: !!materialKey,\n    material_category: materialData.category,\n    shortage_analysis: {\n      current_shortage: shortageQty,\n      recommended_buffer: bufferStock,\n      total_order_quantity: Math.max(totalRequired, materialData.minimum_order),\n      minimum_order_constraint: materialData.minimum_order\n    },\n    urgency_assessment: {\n      required_by: requiredBy.toISOString(),\n      days_until_required: daysUntilRequired,\n      urgency_level: urgencyLevel,\n      expedite_required: urgencyLevel === 'CRITICAL'\n    },\n    supplier_recommendation: {\n      selected_supplier: bestSupplier,\n      alternative_suppliers: materialData.suppliers.filter(s => s.name !== bestSupplier.name),\n      selection_criteria: urgencyLevel === 'CRITICAL' ? 'speed_and_reliability' : 'cost_effectiveness'\n    },\n    cost_estimation: {\n      unit_cost: bestSupplier.unit_cost,\n      total_cost: Math.max(totalRequired, materialData.minimum_order) * bestSupplier.unit_cost,\n      expedite_cost: urgencyLevel === 'CRITICAL' ? bestSupplier.unit_cost * 0.15 : 0\n    }\n  },\n  processing_status: {\n    ...requestData.processing_status,\n    stage: 'ANALYZED',\n    steps_completed: [...requestData.processing_status.steps_completed, 'material_analysis'],\n    next_step: 'purchase_order_creation'\n  }\n};\n\nreturn [{ json: analysisResult }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        -140
+      ],
+      "id": "ffddc618-ec3b-4f3d-832c-4acb17dc98d7",
+      "name": "Analyze Material Requirements"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate and process incoming replenisher request\nconst inputData = $input.first().json;\n\n// Validate required fields\nconst requiredFields = ['orchestrator_id', 'agent_type', 'task_data'];\nconst missingFields = requiredFields.filter(field => !inputData[field]);\n\nif (missingFields.length > 0) {\n  return [{\n    json: {\n      success: false,\n      error: `Missing required fields: ${missingFields.join(', ')}`,\n      timestamp: new Date().toISOString(),\n      agent_type: 'replenisher'\n    }\n  }];\n}\n\n// Process replenisher-specific data\nconst processedData = {\n  // Basic info\n  request_id: `REP-${Date.now()}`,\n  orchestrator_id: inputData.orchestrator_id,\n  agent_type: 'replenisher',\n  received_at: new Date().toISOString(),\n  \n  // Task details\n  task_data: inputData.task_data,\n  priority: inputData.priority || 'MEDIUM',\n  context: inputData.context || {},\n  \n  // Replenisher-specific config\n  replenisher_config: inputData.replenisher_config || {},\n  \n  // Extract material information\n  materials_info: {\n    primary_material: inputData.task_data?.material || 'Unknown',\n    shortage_quantity: inputData.task_data?.shortage_quantity || 0,\n    required_by: inputData.task_data?.required_by || null,\n    supplier_info: inputData.task_data?.supplier_contact || null\n  },\n  \n  // Processing status\n  processing_status: {\n    stage: 'RECEIVED',\n    started_at: new Date().toISOString(),\n    steps_completed: ['input_validation'],\n    next_step: 'material_analysis'\n  }\n};\n\nreturn [{ json: processedData }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        -140
+      ],
+      "id": "7f783bee-20a1-4785-afa4-805d6b171648",
+      "name": "Process Replenisher Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create purchase order based on analysis\nconst analysisData = $input.first().json;\nconst materialAnalysis = analysisData.material_analysis;\nconst supplier = materialAnalysis.supplier_recommendation.selected_supplier;\n\n// Generate PO number\nconst poNumber = `PO-REP-${Date.now().toString().slice(-8)}`;\n\n// Calculate delivery date\nconst orderDate = new Date();\nconst expectedDelivery = new Date(orderDate);\nexpectedDelivery.setDate(expectedDelivery.getDate() + supplier.lead_time);\n\n// Add expedite buffer if critical\nif (materialAnalysis.urgency_assessment.urgency_level === 'CRITICAL') {\n  expectedDelivery.setDate(expectedDelivery.getDate() - 2); // Rush delivery\n}\n\n// Create purchase order\nconst purchaseOrder = {\n  po_number: poNumber,\n  created_at: orderDate.toISOString(),\n  status: 'DRAFT',\n  \n  // Supplier information\n  supplier: {\n    name: supplier.name,\n    contact_required: analysisData.replenisher_config?.supplier_contacts_needed || false,\n    reliability_score: supplier.reliability\n  },\n  \n  // Order details\n  order_details: {\n    material: analysisData.materials_info.primary_material,\n    quantity: materialAnalysis.shortage_analysis.total_order_quantity,\n    unit_cost: supplier.unit_cost,\n    total_cost: materialAnalysis.cost_estimation.total_cost,\n    expedite_cost: materialAnalysis.cost_estimation.expedite_cost\n  },\n  \n  // Delivery information\n  delivery: {\n    requested_date: analysisData.materials_info.required_by,\n    expected_date: expectedDelivery.toISOString(),\n    lead_time_days: supplier.lead_time,\n    expedited: materialAnalysis.urgency_assessment.expedite_required\n  },\n  \n  // Approval workflow\n  approval: {\n    required: materialAnalysis.cost_estimation.total_cost > 10000,\n    auto_approved: materialAnalysis.cost_estimation.total_cost <= 10000 && \n                   materialAnalysis.urgency_assessment.urgency_level !== 'CRITICAL',\n    escalation_needed: materialAnalysis.cost_estimation.total_cost > 50000\n  }\n};\n\n// Determine next actions\nconst nextActions = [];\n\nif (purchaseOrder.approval.escalation_needed) {\n  nextActions.push('ESCALATE_TO_MANAGEMENT');\n}\n\nif (purchaseOrder.supplier.contact_required || materialAnalysis.urgency_assessment.expedite_required) {\n  nextActions.push('CONTACT_SUPPLIER');\n}\n\nif (purchaseOrder.approval.auto_approved) {\n  nextActions.push('SUBMIT_ORDER');\n  purchaseOrder.status = 'APPROVED';\n} else {\n  nextActions.push('PENDING_APPROVAL');\n}\n\n// Create final result\nconst result = {\n  ...analysisData,\n  purchase_order: purchaseOrder,\n  next_actions: nextActions,\n  processing_status: {\n    ...analysisData.processing_status,\n    stage: 'PO_CREATED',\n    steps_completed: [...analysisData.processing_status.steps_completed, 'purchase_order_creation'],\n    next_step: nextActions.length > 0 ? nextActions[0] : 'COMPLETE'\n  }\n};\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        -140
+      ],
+      "id": "9a8dfecc-4929-4bf1-ae1d-a3911422959e",
+      "name": "Create Purchase Order"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Execute the required actions for replenishment\nconst poData = $input.first().json;\nconst purchaseOrder = poData.purchase_order;\nconst nextActions = poData.next_actions;\n\n// Track action results\nconst actionResults = [];\nconst executionLog = [];\n\n// Process each action\nfor (const action of nextActions) {\n  const actionStart = new Date();\n  \n  switch (action) {\n    case 'CONTACT_SUPPLIER':\n      // Simulate supplier contact\n      const contactResult = {\n        action: 'CONTACT_SUPPLIER',\n        status: 'SUCCESS',\n        details: {\n          supplier: purchaseOrder.supplier.name,\n          contact_method: 'EMAIL_AND_PHONE',\n          response_time: '2 hours',\n          confirmation: 'Supplier confirmed availability and lead time',\n          special_terms: purchaseOrder.delivery.expedited ? 'Rush delivery arranged' : 'Standard terms'\n        },\n        timestamp: actionStart.toISOString()\n      };\n      actionResults.push(contactResult);\n      executionLog.push(`${actionStart.toISOString()}: Contacted ${purchaseOrder.supplier.name}`);\n      break;\n      \n    case 'SUBMIT_ORDER':\n      // Simulate order submission\n      const submitResult = {\n        action: 'SUBMIT_ORDER',\n        status: 'SUCCESS',\n        details: {\n          po_number: purchaseOrder.po_number,\n          submission_method: 'ERP_INTEGRATION',\n          confirmation_number: `CONF-${Date.now().toString().slice(-6)}`,\n          estimated_processing: '24 hours'\n        },\n        timestamp: actionStart.toISOString()\n      };\n      actionResults.push(submitResult);\n      executionLog.push(`${actionStart.toISOString()}: Submitted PO ${purchaseOrder.po_number}`);\n      purchaseOrder.status = 'SUBMITTED';\n      break;\n      \n    case 'ESCALATE_TO_MANAGEMENT':\n      // Simulate management escalation\n      const escalateResult = {\n        action: 'ESCALATE_TO_MANAGEMENT',\n        status: 'SUCCESS',\n        details: {\n          escalation_reason: 'High value purchase order',\n          escalated_to: 'Supply Chain Manager',\n          approval_required_by: new Date(Date.now() + 24*60*60*1000).toISOString(),\n          priority_level: 'HIGH'\n        },\n        timestamp: actionStart.toISOString()\n      };\n      actionResults.push(escalateResult);\n      executionLog.push(`${actionStart.toISOString()}: Escalated to management`);\n      purchaseOrder.status = 'PENDING_APPROVAL';\n      break;\n      \n    case 'PENDING_APPROVAL':\n      // Simulate approval workflow\n      const approvalResult = {\n        action: 'PENDING_APPROVAL',\n        status: 'IN_PROGRESS',\n        details: {\n          approval_workflow: 'STANDARD',\n          expected_approval: new Date(Date.now() + 8*60*60*1000).toISOString(),\n          approvers: ['Department Manager', 'Finance Team']\n        },\n        timestamp: actionStart.toISOString()\n      };\n      actionResults.push(approvalResult);\n      executionLog.push(`${actionStart.toISOString()}: Initiated approval workflow`);\n      break;\n  }\n}\n\n// Calculate completion status\nconst allActionsSuccessful = actionResults.every(result => \n  result.status === 'SUCCESS' || result.status === 'IN_PROGRESS'\n);\n\nconst completionStatus = allActionsSuccessful ? 'SUCCESS' : 'PARTIAL_SUCCESS';\n\n// Create execution summary\nconst executionSummary = {\n  ...poData,\n  execution_results: {\n    overall_status: completionStatus,\n    actions_executed: actionResults,\n    execution_log: executionLog,\n    completion_time: new Date().toISOString(),\n    \n    // Summary metrics\n    metrics: {\n      total_actions: nextActions.length,\n      successful_actions: actionResults.filter(r => r.status === 'SUCCESS').length,\n      pending_actions: actionResults.filter(r => r.status === 'IN_PROGRESS').length,\n      failed_actions: actionResults.filter(r => r.status === 'FAILED').length\n    }\n  },\n  \n  processing_status: {\n    ...poData.processing_status,\n    stage: 'EXECUTED',\n    steps_completed: [...poData.processing_status.steps_completed, 'action_execution'],\n    next_step: 'response_preparation'\n  }\n};\n\nreturn [{ json: executionSummary }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        -140
+      ],
+      "id": "c295a000-d6c1-4606-89d7-a350197cc487",
+      "name": "Execute Replenishment Actions"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare comprehensive response to send back to orchestrator\nconst executionData = $input.first().json;\nconst purchaseOrder = executionData.purchase_order;\nconst executionResults = executionData.execution_results;\n\n// Create response payload\nconst orchestratorResponse = {\n  // Response metadata\n  response_id: `RESP-REP-${Date.now()}`,\n  agent_type: 'replenisher',\n  orchestrator_id: executionData.orchestrator_id,\n  original_request_id: executionData.request_id,\n  response_timestamp: new Date().toISOString(),\n  \n  // Execution status\n  success: executionResults.overall_status === 'SUCCESS',\n  status: executionResults.overall_status,\n  \n  // Task completion details\n  task_completion: {\n    original_task: executionData.task_data,\n    completion_status: executionResults.overall_status,\n    processing_time_ms: new Date() - new Date(executionData.received_at),\n    steps_completed: executionData.processing_status.steps_completed\n  },\n  \n  // Replenishment results\n  replenishment_results: {\n    material: executionData.materials_info.primary_material,\n    shortage_addressed: executionData.material_analysis.shortage_analysis.current_shortage,\n    order_quantity: purchaseOrder.order_details.quantity,\n    \n    // Purchase order details\n    purchase_order: {\n      po_number: purchaseOrder.po_number,\n      supplier: purchaseOrder.supplier.name,\n      total_cost: purchaseOrder.order_details.total_cost,\n      expected_delivery: purchaseOrder.delivery.expected_date,\n      status: purchaseOrder.status,\n      expedited: purchaseOrder.delivery.expedited\n    },\n    \n    // Financial impact\n    financial_impact: {\n      cost: purchaseOrder.order_details.total_cost,\n      expedite_cost: purchaseOrder.order_details.expedite_cost,\n      cost_category: purchaseOrder.order_details.total_cost > 50000 ? 'HIGH' : \n                    purchaseOrder.order_details.total_cost > 10000 ? 'MEDIUM' : 'LOW'\n    }\n  },\n  \n  // Action summary\n  actions_taken: executionResults.actions_executed.map(action => ({\n    action: action.action,\n    status: action.status,\n    summary: action.details\n  })),\n  \n  // Next steps and recommendations\n  recommendations: {\n    follow_up_required: purchaseOrder.status === 'PENDING_APPROVAL',\n    monitoring_needed: true,\n    estimated_resolution: purchaseOrder.delivery.expected_date,\n    risk_factors: [\n      ...(purchaseOrder.delivery.expedited ? ['Expedited delivery risk'] : []),\n      ...(purchaseOrder.supplier.reliability_score < 0.9 ? ['Supplier reliability concern'] : []),\n      ...(executionData.material_analysis.urgency_assessment.urgency_level === 'CRITICAL' ? ['Critical timeline'] : [])\n    ]\n  },\n  \n  // Metrics for orchestrator\n  performance_metrics: {\n    response_time_ms: new Date() - new Date(executionData.received_at),\n    complexity_score: executionResults.metrics.total_actions,\n    success_rate: executionResults.metrics.successful_actions / executionResults.metrics.total_actions,\n    cost_efficiency: purchaseOrder.order_details.unit_cost <= 150 ? 'GOOD' : 'REVIEW_NEEDED'\n  }\n};\n\nreturn [{ json: orchestratorResponse }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        -140
+      ],
+      "id": "7176a51b-0f70-4dd0-8b37-36bf4226f340",
+      "name": "Prepare Orchestrator Response"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1949207387,
+          "mode": "list",
+          "cachedResultName": "Replenisher_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=1949207387"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.response_timestamp }}",
+            "Request_ID": "={{ $json.original_request_id }}",
+            "Orchestrator_ID": "={{ $json.orchestrator_id }}",
+            "Material": "={{ $json.replenishment_results.material }}",
+            "PO_Number": "={{ $json.replenishment_results.purchase_order.po_number }}",
+            "Supplier": "={{ $json.replenishment_results.purchase_order.supplier }}",
+            "Order_Quantity": "={{ $json.replenishment_results.order_quantity }}",
+            "Total_Cost": "={{ $json.replenishment_results.purchase_order.total_cost }}",
+            "Status": "={{ $json.status }}",
+            "Processing_Time_MS": "={{ $json.performance_metrics.response_time_ms }}",
+            "Success": "={{ $json.success }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Request_ID",
+              "displayName": "Request_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Orchestrator_ID",
+              "displayName": "Orchestrator_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Material",
+              "displayName": "Material",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PO_Number",
+              "displayName": "PO_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Supplier",
+              "displayName": "Supplier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Order_Quantity",
+              "displayName": "Order_Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total_Cost",
+              "displayName": "Total_Cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Processing_Time_MS",
+              "displayName": "Processing_Time_MS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Success",
+              "displayName": "Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1620,
+        -140
+      ],
+      "id": "4cb5b140-d235-46a2-9f62-e9a8338f9bb4",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Replenisher Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Material Requirements": {
+      "main": [
+        [
+          {
+            "node": "Create Purchase Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Replenisher Request": {
+      "main": [
+        [
+          {
+            "node": "Analyze Material Requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Purchase Order": {
+      "main": [
+        [
+          {
+            "node": "Execute Replenishment Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Replenishment Actions": {
+      "main": [
+        [
+          {
+            "node": "Prepare Orchestrator Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Orchestrator Response": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1c90993f-9811-4397-8c33-4e7a45e6b3fd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c39e1a9a4579471ffc7b2a4413c053c9701ae370fe3bca3f0daa635a16a7ee8a"
+  },
+  "id": "nhFth0A3BaTAuDP2",
+  "tags": []
+}
