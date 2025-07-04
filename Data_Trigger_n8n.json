@@ -1,0 +1,1983 @@
+{
+  "name": "Data_Trigger_n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1820,
+        315
+      ],
+      "id": "b29c244b-fe41-42b8-9fce-d2954f766e71",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cxtJBuayokX9ROIE",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 2
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2780,
+        -205
+      ],
+      "id": "2fadb102-6bfb-4edc-bf27-2d4985e717e9",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1835731665,
+          "mode": "list",
+          "cachedResultName": "Inventory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=1835731665"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -2560,
+        -205
+      ],
+      "id": "bac4ea2f-1924-4423-9064-d87468563832",
+      "name": "Read Current Stock1",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 343935674,
+          "mode": "list",
+          "cachedResultName": "MaterialMaster",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=343935674"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -2560,
+        -5
+      ],
+      "id": "41f26bf7-25eb-42d3-8c66-2074fa4ceb2e",
+      "name": "Read Material Info1",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Analyze this real supply chain data:\n\n{{ $json }}\n\nKey areas to focus on:\n1. Which materials need immediate attention?\n2. Are there supply-demand imbalances?\n3. What are the financial risks?\n4. Which plants need optimization?\n5. Any critical operational issues?\n\nProvide specific, actionable recommendations.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a Supply Chain Data Integration Agent specialized in analyzing real inventory, inbound, and outbound data.\n\n## YOUR EXPERTISE\n- Multi-plant inventory management (CHINA-WAREHOUSE, SINGAPORE-WAREHOUSE)\n- Material flow analysis (Inbound vs Outbound trends)\n- Batch management and SCRAP handling\n- Financial impact assessment (stock values in CNY)\n- Supply chain risk identification\n\n## ANALYSIS FOCUS\n1. **Inventory Health**: Stock levels, batch quality, plant distribution\n2. **Supply-Demand Balance**: Inbound vs Outbound patterns\n3. **Financial Risk**: High-value inventory exposure\n4. **Operational Alerts**: SCRAP materials, low stock, expired batches\n5. **Plant Performance**: Utilization and efficiency metrics\n\n## OUTPUT REQUIREMENTS\nProvide structured analysis with:\n- **Executive Summary** (2-3 sentences)\n- **Critical Alerts** (HIGH/MEDIUM/LOW priority)\n- **Key Metrics** (numbers that matter)\n- **Recommendations** (specific actions)\n- **Risk Assessment** (potential issues)\n\nFocus on actionable insights for supply chain managers.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1900,
+        95
+      ],
+      "id": "f017c4b0-2ba7-4319-a9b1-8a032567e415",
+      "name": "Gemini Alert Generator1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1438088387,
+          "mode": "list",
+          "cachedResultName": "Inbound",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=1438088387"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -2560,
+        195
+      ],
+      "id": "83753ea7-c20b-44c0-b569-f51973eb19f6",
+      "name": "Read Inbound",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 343935674,
+          "mode": "list",
+          "cachedResultName": "MaterialMaster",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=343935674"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -2560,
+        395
+      ],
+      "id": "38e694a5-9e8f-45ff-b871-c9d06985dfa1",
+      "name": "Read Outbound",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.alert_level }}",
+                    "rightValue": "CRITICAL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "59d73521-1bc5-4b1e-9266-0540060cf027"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CRITICAL"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2af85f96-0540-4f6f-a505-479164779ce3",
+                    "leftValue": "={{ $json.alert_level }}",
+                    "rightValue": "HIGH",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "HIGH"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "00d8b243-01fc-4ab7-a4f5-084972d56ebb",
+                    "leftValue": "={{ $json.alert_level }}",
+                    "rightValue": "MEDIUM/LOW",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "MEDIUM/LOW"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1320,
+        -380
+      ],
+      "id": "a8b2376d-c73d-4cd2-bd77-24921fbd6d86",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "pacharaprompang1@gmail.com",
+        "subject": "=🚨 CRITICAL Supply Chain Alert - {{ new Date().toLocaleString() }}",
+        "emailType": "text",
+        "message": "=Critical issues detected in supply chain data:  {{ $json.critical_alerts }}  Key Metrics: - Data Quality Score: {{ $json.data_quality_score }}% - Low Stock Materials: {{ $json.low_stock_count }} - High Value Inventory at Risk: {{ $json.high_value_risk }}  Immediate action required.  Supply Chain Data Integration Agent",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1100,
+        -580
+      ],
+      "id": "08fbe0b0-b7bd-44d0-8277-264eadb0af15",
+      "name": "Send a message",
+      "webhookId": "4b3b8f1c-d432-4130-8405-d47ea2338c18",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CAKgBTkkJZDRUSeA",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}// Extract alert level from AI response\nconst aiResponse = $input.first().json;\nlet alertLevel = 'LOW';\n\n// Determine alert level based on AI analysis\nconst responseText = JSON.stringify(aiResponse).toLowerCase();\n\nif (responseText.includes('critical') || responseText.includes('urgent') || responseText.includes('immediate')) {\n  alertLevel = 'CRITICAL';\n} else if (responseText.includes('high priority') || responseText.includes('significant risk') || responseText.includes('attention needed')) {\n  alertLevel = 'HIGH';  \n} else if (responseText.includes('medium') || responseText.includes('monitor') || responseText.includes('watch')) {\n  alertLevel = 'MEDIUM';\n}\n\nreturn [{\n  ...aiResponse,\n  alert_level: alertLevel,\n  timestamp: new Date().toISOString(),\n  data_source: 'real_supply_chain_data'\n}];\n\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1540,
+        -380
+      ],
+      "id": "494cb5cc-109e-4aea-81bf-b8447a563079",
+      "name": "Alert"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1219021630,
+          "mode": "list",
+          "cachedResultName": "Data_Quality_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=1219021630"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ new Date().toISOString() }}",
+            "data_source": "Multi-source (Inventory/Inbound/Outbound/Master)",
+            "issues_found": "=",
+            "records_processed": "=",
+            "quality_score": "={{ $json.data_quality_score }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data_source",
+              "displayName": "data_source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issues_found",
+              "displayName": "issues_found",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "records_processed",
+              "displayName": "records_processed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quality_score",
+              "displayName": "quality_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_recommendations",
+              "displayName": "ai_recommendations",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -1100,
+        -180
+      ],
+      "id": "8fedd5dc-c2ea-4aef-8374-74f9ba786233",
+      "name": "Append row in Data Quality Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "pacharaprompang1@gmail.com",
+        "subject": "dsa",
+        "message": "dsa",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1100,
+        -380
+      ],
+      "id": "300c9535-f903-4578-b0e5-46c1a2f02af1",
+      "name": "Send a message2",
+      "webhookId": "73f9c467-f80d-4acc-a6ce-07283575a824",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CAKgBTkkJZDRUSeA",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/Master-Orchestrator-Agent",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2780,
+        830
+      ],
+      "id": "588df631-aaba-4e91-b676-f5598ddbc7f3",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2340,
+        75
+      ],
+      "id": "969f5214-969b-4ae1-b7fe-1931ceebcb13",
+      "name": "Merge Input"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Data Integration Agent - Real Supply Chain Data Processing\nconst items = $input.all();\nlet processedData = {\n  inventory_data: [],\n  inbound_data: [],\n  outbound_data: [],\n  material_master: [],\n  data_quality: {\n    total_records: 0,\n    errors: [],\n    warnings: [],\n    critical_alerts: []\n  },\n  business_insights: {\n    low_stock_materials: [],\n    expired_batches: [],\n    high_value_inventory: [],\n    plant_utilization: {}\n  }\n};\n\n// Process and categorize data\nitems.forEach(item => {\n  const data = item.json;\n  processedData.data_quality.total_records++;\n  \n  // Categorize by data source\n  if (data.BALANCE_AS_OF_DATE) {\n    // Inventory data processing\n    let inventoryItem = { ...data };\n    \n    // Data validation\n    if (!inventoryItem.MATERIAL_NAME || inventoryItem.MATERIAL_NAME === '') {\n      processedData.data_quality.errors.push({\n        type: 'missing_material_name',\n        record: inventoryItem\n      });\n    }\n    \n    // Convert stock to number\n    inventoryItem.UNRESTRICTED_STOCK = parseFloat(inventoryItem.UNRESTRICTED_STOCK) || 0;\n    inventoryItem.STOCK_SELL_VALUE = parseFloat(inventoryItem.STOCK_SELL_VALUE) || 0;\n    \n    // Check for low stock (less than 1000 units)\n    if (inventoryItem.UNRESTRICTED_STOCK < 1000 && inventoryItem.UNRESTRICTED_STOCK > 0) {\n      processedData.business_insights.low_stock_materials.push({\n        material: inventoryItem.MATERIAL_NAME,\n        plant: inventoryItem.PLANT_NAME,\n        current_stock: inventoryItem.UNRESTRICTED_STOCK,\n        value: inventoryItem.STOCK_SELL_VALUE\n      });\n    }\n    \n    // Check for high value inventory (>100,000)\n    if (inventoryItem.STOCK_SELL_VALUE > 100000) {\n      processedData.business_insights.high_value_inventory.push({\n        material: inventoryItem.MATERIAL_NAME,\n        plant: inventoryItem.PLANT_NAME,\n        value: inventoryItem.STOCK_SELL_VALUE,\n        stock: inventoryItem.UNRESTRICTED_STOCK\n      });\n    }\n    \n    // Check for SCRAP batches\n    if (inventoryItem.BATCH_NUMBER === 'SCRAP') {\n      processedData.data_quality.warnings.push({\n        type: 'scrap_inventory',\n        material: inventoryItem.MATERIAL_NAME,\n        plant: inventoryItem.PLANT_NAME,\n        value: inventoryItem.STOCK_SELL_VALUE\n      });\n    }\n    \n    processedData.inventory_data.push(inventoryItem);\n    \n  } else if (data.INBOUND_DATE) {\n    // Inbound data processing\n    let inboundItem = { ...data };\n    inboundItem.NET_QUANTITY_MT = parseFloat(inboundItem.NET_QUANTITY_MT) || 0;\n    \n    // Validate inbound date\n    const inboundDate = new Date(inboundItem.INBOUND_DATE);\n    if (isNaN(inboundDate.getTime())) {\n      processedData.data_quality.errors.push({\n        type: 'invalid_inbound_date',\n        record: inboundItem\n      });\n    }\n    \n    processedData.inbound_data.push(inboundItem);\n    \n  } else if (data.OUTBOUND_DATE) {\n    // Outbound data processing  \n    let outboundItem = { ...data };\n    outboundItem.NET_QUANTITY_MT = parseFloat(outboundItem.NET_QUANTITY_MT) || 0;\n    \n    processedData.outbound_data.push(outboundItem);\n    \n  } else if (data.POLYMER_TYPE) {\n    // Material master processing\n    processedData.material_master.push(data);\n  }\n});\n\n// Calculate plant utilization\nconst plantStats = {};\nprocessedData.inventory_data.forEach(item => {\n  if (!plantStats[item.PLANT_NAME]) {\n    plantStats[item.PLANT_NAME] = {\n      total_materials: 0,\n      total_value: 0,\n      total_stock: 0\n    };\n  }\n  plantStats[item.PLANT_NAME].total_materials++;\n  plantStats[item.PLANT_NAME].total_value += item.STOCK_SELL_VALUE;\n  plantStats[item.PLANT_NAME].total_stock += item.UNRESTRICTED_STOCK;\n});\nprocessedData.business_insights.plant_utilization = plantStats;\n\n// Generate critical alerts\nif (processedData.business_insights.low_stock_materials.length > 5) {\n  processedData.data_quality.critical_alerts.push({\n    type: 'multiple_low_stock',\n    count: processedData.business_insights.low_stock_materials.length,\n    message: `${processedData.business_insights.low_stock_materials.length} materials are running low on stock`\n  });\n}\n\n// Summary\nprocessedData.summary = {\n  total_inventory_records: processedData.inventory_data.length,\n  total_inbound_records: processedData.inbound_data.length,\n  total_outbound_records: processedData.outbound_data.length,\n  total_materials: processedData.material_master.length,\n  data_quality_score: Math.max(0, 100 - (processedData.data_quality.errors.length * 10) - (processedData.data_quality.warnings.length * 5)),\n  critical_alerts_count: processedData.data_quality.critical_alerts.length,\n  processing_timestamp: new Date().toISOString()\n};\n\nreturn [processedData];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2120,
+        95
+      ],
+      "id": "c824a3f9-2799-432e-a0e4-b7bf13dbb562",
+      "name": "Preprocessing1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1949207387,
+          "mode": "list",
+          "cachedResultName": "Replenisher_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=1949207387"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.response_timestamp }}",
+            "Request_ID": "={{ $json.original_request_id }}",
+            "Orchestrator_ID": "={{ $json.orchestrator_id }}",
+            "Material": "={{ $json.replenishment_results.material }}",
+            "PO_Number": "={{ $json.replenishment_results.purchase_order.po_number }}",
+            "Supplier": "={{ $json.replenishment_results.purchase_order.supplier }}",
+            "Order_Quantity": "={{ $json.replenishment_results.order_quantity }}",
+            "Total_Cost": "={{ $json.replenishment_results.purchase_order.total_cost }}",
+            "Status": "={{ $json.status }}",
+            "Processing_Time_MS": "={{ $json.performance_metrics.response_time_ms }}",
+            "Success": "={{ $json.success }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Request_ID",
+              "displayName": "Request_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Orchestrator_ID",
+              "displayName": "Orchestrator_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Material",
+              "displayName": "Material",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PO_Number",
+              "displayName": "PO_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Supplier",
+              "displayName": "Supplier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Order_Quantity",
+              "displayName": "Order_Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total_Cost",
+              "displayName": "Total_Cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Processing_Time_MS",
+              "displayName": "Processing_Time_MS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Success",
+              "displayName": "Success",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        660,
+        -480
+      ],
+      "id": "a80a2d7a-b0a5-48b7-9336-e42795bab16b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare comprehensive response to send back to orchestrator\nconst executionData = $input.first().json;\nconst purchaseOrder = executionData.purchase_order;\nconst executionResults = executionData.execution_results;\n\n// Create response payload\nconst orchestratorResponse = {\n  // Response metadata\n  response_id: `RESP-REP-${Date.now()}`,\n  agent_type: 'replenisher',\n  orchestrator_id: executionData.orchestrator_id,\n  original_request_id: executionData.request_id,\n  response_timestamp: new Date().toISOString(),\n  \n  // Execution status\n  success: executionResults.overall_status === 'SUCCESS',\n  status: executionResults.overall_status,\n  \n  // Task completion details\n  task_completion: {\n    original_task: executionData.task_data,\n    completion_status: executionResults.overall_status,\n    processing_time_ms: new Date() - new Date(executionData.received_at),\n    steps_completed: executionData.processing_status.steps_completed\n  },\n  \n  // Replenishment results\n  replenishment_results: {\n    material: executionData.materials_info.primary_material,\n    shortage_addressed: executionData.material_analysis.shortage_analysis.current_shortage,\n    order_quantity: purchaseOrder.order_details.quantity,\n    \n    // Purchase order details\n    purchase_order: {\n      po_number: purchaseOrder.po_number,\n      supplier: purchaseOrder.supplier.name,\n      total_cost: purchaseOrder.order_details.total_cost,\n      expected_delivery: purchaseOrder.delivery.expected_date,\n      status: purchaseOrder.status,\n      expedited: purchaseOrder.delivery.expedited\n    },\n    \n    // Financial impact\n    financial_impact: {\n      cost: purchaseOrder.order_details.total_cost,\n      expedite_cost: purchaseOrder.order_details.expedite_cost,\n      cost_category: purchaseOrder.order_details.total_cost > 50000 ? 'HIGH' : \n                    purchaseOrder.order_details.total_cost > 10000 ? 'MEDIUM' : 'LOW'\n    }\n  },\n  \n  // Action summary\n  actions_taken: executionResults.actions_executed.map(action => ({\n    action: action.action,\n    status: action.status,\n    summary: action.details\n  })),\n  \n  // Next steps and recommendations\n  recommendations: {\n    follow_up_required: purchaseOrder.status === 'PENDING_APPROVAL',\n    monitoring_needed: true,\n    estimated_resolution: purchaseOrder.delivery.expected_date,\n    risk_factors: [\n      ...(purchaseOrder.delivery.expedited ? ['Expedited delivery risk'] : []),\n      ...(purchaseOrder.supplier.reliability_score < 0.9 ? ['Supplier reliability concern'] : []),\n      ...(executionData.material_analysis.urgency_assessment.urgency_level === 'CRITICAL' ? ['Critical timeline'] : [])\n    ]\n  },\n  \n  // Metrics for orchestrator\n  performance_metrics: {\n    response_time_ms: new Date() - new Date(executionData.received_at),\n    complexity_score: executionResults.metrics.total_actions,\n    success_rate: executionResults.metrics.successful_actions / executionResults.metrics.total_actions,\n    cost_efficiency: purchaseOrder.order_details.unit_cost <= 150 ? 'GOOD' : 'REVIEW_NEEDED'\n  }\n};\n\nreturn [{ json: orchestratorResponse }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        -480
+      ],
+      "id": "ee625fb4-3714-4232-8996-d8bada7668b4",
+      "name": "Prepare Orchestrator Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Execute the required actions for replenishment\nconst poData = $input.first().json;\nconst purchaseOrder = poData.purchase_order;\nconst nextActions = poData.next_actions;\n\n// Track action results\nconst actionResults = [];\nconst executionLog = [];\n\n// Process each action\nfor (const action of nextActions) {\n  const actionStart = new Date();\n  \n  switch (action) {\n    case 'CONTACT_SUPPLIER':\n      // Simulate supplier contact\n      const contactResult = {\n        action: 'CONTACT_SUPPLIER',\n        status: 'SUCCESS',\n        details: {\n          supplier: purchaseOrder.supplier.name,\n          contact_method: 'EMAIL_AND_PHONE',\n          response_time: '2 hours',\n          confirmation: 'Supplier confirmed availability and lead time',\n          special_terms: purchaseOrder.delivery.expedited ? 'Rush delivery arranged' : 'Standard terms'\n        },\n        timestamp: actionStart.toISOString()\n      };\n      actionResults.push(contactResult);\n      executionLog.push(`${actionStart.toISOString()}: Contacted ${purchaseOrder.supplier.name}`);\n      break;\n      \n    case 'SUBMIT_ORDER':\n      // Simulate order submission\n      const submitResult = {\n        action: 'SUBMIT_ORDER',\n        status: 'SUCCESS',\n        details: {\n          po_number: purchaseOrder.po_number,\n          submission_method: 'ERP_INTEGRATION',\n          confirmation_number: `CONF-${Date.now().toString().slice(-6)}`,\n          estimated_processing: '24 hours'\n        },\n        timestamp: actionStart.toISOString()\n      };\n      actionResults.push(submitResult);\n      executionLog.push(`${actionStart.toISOString()}: Submitted PO ${purchaseOrder.po_number}`);\n      purchaseOrder.status = 'SUBMITTED';\n      break;\n      \n    case 'ESCALATE_TO_MANAGEMENT':\n      // Simulate management escalation\n      const escalateResult = {\n        action: 'ESCALATE_TO_MANAGEMENT',\n        status: 'SUCCESS',\n        details: {\n          escalation_reason: 'High value purchase order',\n          escalated_to: 'Supply Chain Manager',\n          approval_required_by: new Date(Date.now() + 24*60*60*1000).toISOString(),\n          priority_level: 'HIGH'\n        },\n        timestamp: actionStart.toISOString()\n      };\n      actionResults.push(escalateResult);\n      executionLog.push(`${actionStart.toISOString()}: Escalated to management`);\n      purchaseOrder.status = 'PENDING_APPROVAL';\n      break;\n      \n    case 'PENDING_APPROVAL':\n      // Simulate approval workflow\n      const approvalResult = {\n        action: 'PENDING_APPROVAL',\n        status: 'IN_PROGRESS',\n        details: {\n          approval_workflow: 'STANDARD',\n          expected_approval: new Date(Date.now() + 8*60*60*1000).toISOString(),\n          approvers: ['Department Manager', 'Finance Team']\n        },\n        timestamp: actionStart.toISOString()\n      };\n      actionResults.push(approvalResult);\n      executionLog.push(`${actionStart.toISOString()}: Initiated approval workflow`);\n      break;\n  }\n}\n\n// Calculate completion status\nconst allActionsSuccessful = actionResults.every(result => \n  result.status === 'SUCCESS' || result.status === 'IN_PROGRESS'\n);\n\nconst completionStatus = allActionsSuccessful ? 'SUCCESS' : 'PARTIAL_SUCCESS';\n\n// Create execution summary\nconst executionSummary = {\n  ...poData,\n  execution_results: {\n    overall_status: completionStatus,\n    actions_executed: actionResults,\n    execution_log: executionLog,\n    completion_time: new Date().toISOString(),\n    \n    // Summary metrics\n    metrics: {\n      total_actions: nextActions.length,\n      successful_actions: actionResults.filter(r => r.status === 'SUCCESS').length,\n      pending_actions: actionResults.filter(r => r.status === 'IN_PROGRESS').length,\n      failed_actions: actionResults.filter(r => r.status === 'FAILED').length\n    }\n  },\n  \n  processing_status: {\n    ...poData.processing_status,\n    stage: 'EXECUTED',\n    steps_completed: [...poData.processing_status.steps_completed, 'action_execution'],\n    next_step: 'response_preparation'\n  }\n};\n\nreturn [{ json: executionSummary }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        -480
+      ],
+      "id": "5cdb3903-dffd-40cf-909f-ca4863178629",
+      "name": "Execute Replenishment Actions"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create purchase order based on analysis\nconst analysisData = $input.first().json;\nconst materialAnalysis = analysisData.material_analysis;\nconst supplier = materialAnalysis.supplier_recommendation.selected_supplier;\n\n// Generate PO number\nconst poNumber = `PO-REP-${Date.now().toString().slice(-8)}`;\n\n// Calculate delivery date\nconst orderDate = new Date();\nconst expectedDelivery = new Date(orderDate);\nexpectedDelivery.setDate(expectedDelivery.getDate() + supplier.lead_time);\n\n// Add expedite buffer if critical\nif (materialAnalysis.urgency_assessment.urgency_level === 'CRITICAL') {\n  expectedDelivery.setDate(expectedDelivery.getDate() - 2); // Rush delivery\n}\n\n// Create purchase order\nconst purchaseOrder = {\n  po_number: poNumber,\n  created_at: orderDate.toISOString(),\n  status: 'DRAFT',\n  \n  // Supplier information\n  supplier: {\n    name: supplier.name,\n    contact_required: analysisData.replenisher_config?.supplier_contacts_needed || false,\n    reliability_score: supplier.reliability\n  },\n  \n  // Order details\n  order_details: {\n    material: analysisData.materials_info.primary_material,\n    quantity: materialAnalysis.shortage_analysis.total_order_quantity,\n    unit_cost: supplier.unit_cost,\n    total_cost: materialAnalysis.cost_estimation.total_cost,\n    expedite_cost: materialAnalysis.cost_estimation.expedite_cost\n  },\n  \n  // Delivery information\n  delivery: {\n    requested_date: analysisData.materials_info.required_by,\n    expected_date: expectedDelivery.toISOString(),\n    lead_time_days: supplier.lead_time,\n    expedited: materialAnalysis.urgency_assessment.expedite_required\n  },\n  \n  // Approval workflow\n  approval: {\n    required: materialAnalysis.cost_estimation.total_cost > 10000,\n    auto_approved: materialAnalysis.cost_estimation.total_cost <= 10000 && \n                   materialAnalysis.urgency_assessment.urgency_level !== 'CRITICAL',\n    escalation_needed: materialAnalysis.cost_estimation.total_cost > 50000\n  }\n};\n\n// Determine next actions\nconst nextActions = [];\n\nif (purchaseOrder.approval.escalation_needed) {\n  nextActions.push('ESCALATE_TO_MANAGEMENT');\n}\n\nif (purchaseOrder.supplier.contact_required || materialAnalysis.urgency_assessment.expedite_required) {\n  nextActions.push('CONTACT_SUPPLIER');\n}\n\nif (purchaseOrder.approval.auto_approved) {\n  nextActions.push('SUBMIT_ORDER');\n  purchaseOrder.status = 'APPROVED';\n} else {\n  nextActions.push('PENDING_APPROVAL');\n}\n\n// Create final result\nconst result = {\n  ...analysisData,\n  purchase_order: purchaseOrder,\n  next_actions: nextActions,\n  processing_status: {\n    ...analysisData.processing_status,\n    stage: 'PO_CREATED',\n    steps_completed: [...analysisData.processing_status.steps_completed, 'purchase_order_creation'],\n    next_step: nextActions.length > 0 ? nextActions[0] : 'COMPLETE'\n  }\n};\n\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -480
+      ],
+      "id": "5d944f64-9688-4daa-a1c3-8ba82470e4b5",
+      "name": "Create Purchase Order"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate and process incoming replenisher request\nconst inputData = $input.first().json;\n\n// Validate required fields\nconst requiredFields = ['orchestrator_id', 'agent_type', 'task_data'];\nconst missingFields = requiredFields.filter(field => !inputData[field]);\n\nif (missingFields.length > 0) {\n  return [{\n    json: {\n      success: false,\n      error: `Missing required fields: ${missingFields.join(', ')}`,\n      timestamp: new Date().toISOString(),\n      agent_type: 'replenisher'\n    }\n  }];\n}\n\n// Process replenisher-specific data\nconst processedData = {\n  // Basic info\n  request_id: `REP-${Date.now()}`,\n  orchestrator_id: inputData.orchestrator_id,\n  agent_type: 'replenisher',\n  received_at: new Date().toISOString(),\n  \n  // Task details\n  task_data: inputData.task_data,\n  priority: inputData.priority || 'MEDIUM',\n  context: inputData.context || {},\n  \n  // Replenisher-specific config\n  replenisher_config: inputData.replenisher_config || {},\n  \n  // Extract material information\n  materials_info: {\n    primary_material: inputData.task_data?.material || 'Unknown',\n    shortage_quantity: inputData.task_data?.shortage_quantity || 0,\n    required_by: inputData.task_data?.required_by || null,\n    supplier_info: inputData.task_data?.supplier_contact || null\n  },\n  \n  // Processing status\n  processing_status: {\n    stage: 'RECEIVED',\n    started_at: new Date().toISOString(),\n    steps_completed: ['input_validation'],\n    next_step: 'material_analysis'\n  }\n};\n\nreturn [{ json: processedData }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -480
+      ],
+      "id": "bfef922e-f7d9-41f8-b569-9d6038ebf387",
+      "name": "Process Replenisher Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analyze material requirements and determine replenishment strategy\nconst requestData = $input.first().json;\nconst materialsInfo = requestData.materials_info;\nconst taskData = requestData.task_data;\n\n// Mock supplier database (ในการใช้งานจริงจะเชื่อมต่อกับ ERP/Database)\nconst supplierDatabase = {\n  'Raw Material A': {\n    suppliers: [\n      { name: 'Supplier Alpha', lead_time: 7, unit_cost: 150, reliability: 0.95 },\n      { name: 'Supplier Beta', lead_time: 10, unit_cost: 140, reliability: 0.90 }\n    ],\n    minimum_order: 1000,\n    category: 'raw_materials'\n  },\n  'Component B': {\n    suppliers: [\n      { name: 'Component Corp', lead_time: 14, unit_cost: 75, reliability: 0.98 },\n      { name: 'Parts Plus', lead_time: 21, unit_cost: 65, reliability: 0.85 }\n    ],\n    minimum_order: 500,\n    category: 'components'\n  },\n  'Chemical C': {\n    suppliers: [\n      { name: 'ChemCorp', lead_time: 5, unit_cost: 200, reliability: 0.99 },\n      { name: 'Chemical Solutions', lead_time: 7, unit_cost: 185, reliability: 0.92 }\n    ],\n    minimum_order: 100,\n    category: 'chemicals'\n  }\n};\n\n// Find material in database\nconst materialKey = Object.keys(supplierDatabase).find(key => \n  key.toLowerCase().includes(materialsInfo.primary_material.toLowerCase()) ||\n  materialsInfo.primary_material.toLowerCase().includes(key.toLowerCase())\n);\n\nconst materialData = supplierDatabase[materialKey] || {\n  suppliers: [{ name: 'Generic Supplier', lead_time: 14, unit_cost: 100, reliability: 0.80 }],\n  minimum_order: 1000,\n  category: 'unknown'\n};\n\n// Calculate requirements\nconst shortageQty = materialsInfo.shortage_quantity || 1000;\nconst bufferStock = Math.ceil(shortageQty * 0.2); // 20% buffer\nconst totalRequired = shortageQty + bufferStock;\n\n// Determine urgency level\nconst requiredBy = new Date(materialsInfo.required_by || Date.now() + 30*24*60*60*1000);\nconst daysUntilRequired = Math.ceil((requiredBy - new Date()) / (24*60*60*1000));\nconst urgencyLevel = daysUntilRequired <= 7 ? 'CRITICAL' : \n                    daysUntilRequired <= 14 ? 'HIGH' : 'MEDIUM';\n\n// Select best supplier based on urgency and reliability\nconst bestSupplier = materialData.suppliers.sort((a, b) => {\n  if (urgencyLevel === 'CRITICAL') {\n    // For critical items, prioritize lead time and reliability\n    return (a.lead_time * (1 - a.reliability)) - (b.lead_time * (1 - b.reliability));\n  } else {\n    // For normal items, balance cost and reliability\n    return (a.unit_cost / a.reliability) - (b.unit_cost / b.reliability);\n  }\n})[0];\n\n// Create analysis result\nconst analysisResult = {\n  ...requestData,\n  material_analysis: {\n    material_found: !!materialKey,\n    material_category: materialData.category,\n    shortage_analysis: {\n      current_shortage: shortageQty,\n      recommended_buffer: bufferStock,\n      total_order_quantity: Math.max(totalRequired, materialData.minimum_order),\n      minimum_order_constraint: materialData.minimum_order\n    },\n    urgency_assessment: {\n      required_by: requiredBy.toISOString(),\n      days_until_required: daysUntilRequired,\n      urgency_level: urgencyLevel,\n      expedite_required: urgencyLevel === 'CRITICAL'\n    },\n    supplier_recommendation: {\n      selected_supplier: bestSupplier,\n      alternative_suppliers: materialData.suppliers.filter(s => s.name !== bestSupplier.name),\n      selection_criteria: urgencyLevel === 'CRITICAL' ? 'speed_and_reliability' : 'cost_effectiveness'\n    },\n    cost_estimation: {\n      unit_cost: bestSupplier.unit_cost,\n      total_cost: Math.max(totalRequired, materialData.minimum_order) * bestSupplier.unit_cost,\n      expedite_cost: urgencyLevel === 'CRITICAL' ? bestSupplier.unit_cost * 0.15 : 0\n    }\n  },\n  processing_status: {\n    ...requestData.processing_status,\n    stage: 'ANALYZED',\n    steps_completed: [...requestData.processing_status.steps_completed, 'material_analysis'],\n    next_step: 'purchase_order_creation'\n  }\n};\n\nreturn [{ json: analysisResult }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        -480
+      ],
+      "id": "82e45706-6783-4b6b-bbf6-380cdf8e00ba",
+      "name": "Analyze Material Requirements"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.agent_name }}",
+                    "rightValue": "Replenisher Agent",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8ad133af-468b-4abf-84ab-248f21033379"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Replenisher Agent"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e846e2d9-1b2b-473f-86a5-714159c13e5e",
+                    "leftValue": "={{ $json.agent_name }}",
+                    "rightValue": "Warehouse Agent-",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Warehouse Agent"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d4cfba2d-3244-4020-adae-fb4312955d81",
+                    "leftValue": "={{ $json.agent_name }}",
+                    "rightValue": "Finance Agent-",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finance Agent"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "979a4ba1-ed96-45b0-90c3-760fe4e5809f",
+                    "leftValue": "={{ $json.agent_name }}",
+                    "rightValue": "Alert Agent-",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Alert Agent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -880,
+        0
+      ],
+      "id": "35a59dbf-eb3f-407b-b65b-bdaeabc6e021",
+      "name": "Separate Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const tasks = $json.agent_assignments;\n\nreturn tasks.map(task => {\n  return {\n    json: task\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1100,
+        20
+      ],
+      "id": "ca3bcbeb-68ff-4217-aa6e-065411568d51",
+      "name": "Preprocessing"
+    },
+    {
+      "parameters": {
+        "sendTo": "pacharaprompang1@gmail.com",
+        "subject": "=🚨 Multi-Agent Supply Chain Mission - Requires Attention",
+        "emailType": "text",
+        "message": "=Executive Summary:\n{{ AI Agent output }}\n\nAgent Execution Status:\n- Success Rate: {{ $json.execution_summary.success_rate }}\n- Critical Issues: {{ $json.execution_summary.critical_issues_resolved }}\n- Failed Tasks: {{ $json.failure_count }}\n\nImmediate attention required for failed agent tasks.\n\nMaster Orchestrator Agent",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1900,
+        10
+      ],
+      "id": "4c947570-3ee3-4c89-8516-63cf61c75964",
+      "name": "Send a message1",
+      "webhookId": "4b3b8f1c-d432-4130-8405-d47ea2338c18",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CAKgBTkkJZDRUSeA",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.overall_status }}",
+                    "rightValue": "PARTIAL_FAILURE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "4f33884d-5048-4c3d-bc62-3e9a8a946dc9"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Executive Alert"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6fa9aa63-5df4-446d-95f6-278fc2cf4905",
+                    "leftValue": "={{ $json.overall_status }}",
+                    "rightValue": "COMPLETED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Success Notification"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "bcf76037-1ee2-4788-bfe5-6d3c5c131469",
+                    "leftValue": "={{ $json.overall_status }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Status Update"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1680,
+        10
+      ],
+      "id": "c8980865-a190-4ac8-a139-4eace21a7140",
+      "name": "Executive Escalation"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Generate an executive summary based on this multi-agent execution:\n\n{{ $json }}\n\nFocus on:\n1. Did we successfully address the 250,000 CNY SCRAP loss?\n2. Is the M-1003 stockout being resolved?\n3. Are we rebalancing the plant inventory effectively?\n4. What's the overall financial impact?\n5. What requires immediate executive attention?\n\nProvide strategic recommendations for the next 24-48 hours.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a Master Orchestrator Agent that coordinates multiple specialized supply chain agents.\n\n## YOUR ROLE\n- Receive execution results from Replenisher, Warehouse, Finance, and Alert agents\n- Generate executive summaries for leadership\n- Identify coordination issues between agents\n- Recommend next steps for complex multi-agent scenarios\n\n## ANALYSIS FOCUS\n- Overall mission success rate\n- Critical issues resolution status  \n- Inter-agent dependencies and conflicts\n- Resource allocation efficiency\n- Risk mitigation effectiveness\n\n## OUTPUT REQUIREMENTS\nProvide a concise executive report with:\n- **Mission Status** (Success/Partial/Failed)\n- **Key Achievements** (what was accomplished)\n- **Outstanding Issues** (what needs attention)\n- **Resource Impact** (cost/time/people)\n- **Next Steps** (immediate actions required)\n\nKeep it executive-level: strategic, quantified, actionable.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        10
+      ],
+      "id": "9279d30b-5e41-4138-ae1c-7039e5daade1",
+      "name": "Master Orchestrator Agent"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1482596563,
+          "mode": "list",
+          "cachedResultName": "Task_Queue",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=1482596563"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "TASK_ID",
+              "displayName": "TASK_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TASK_TYPE",
+              "displayName": "TASK_TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "PRIORITY",
+              "displayName": "PRIORITY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AGENT_ASSIGNED",
+              "displayName": "AGENT_ASSIGNED",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TASK_DESCRIPTION",
+              "displayName": "TASK_DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CREATED_AT",
+              "displayName": "CREATED_AT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ASSIGNED_AT",
+              "displayName": "ASSIGNED_AT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "COMPLETED_AT",
+              "displayName": "COMPLETED_AT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "RESULT",
+              "displayName": "RESULT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1390,
+        -290
+      ],
+      "id": "55bb9fa8-3628-482a-b61f-560a5a89eaf1",
+      "name": "Update Task Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Track Agent Execution Status\nconst agentResponses = $input.all();\nlet executionStatus = {\n  orchestration_id: agentResponses[0]?.json?.orchestrator_id || 'Unknown',\n  completion_timestamp: new Date().toISOString(),\n  agent_results: [],\n  success_count: 0,\n  failure_count: 0,\n  pending_count: 0,\n  overall_status: 'COMPLETED',\n  next_actions: []\n};\n\nagentResponses.forEach(response => {\n  const result = response.json;\n  \n  let agentResult = {\n    agent_name: result.agent_type || 'Unknown',\n    task_id: result.task_id || 'Unknown',\n    status: result.status || 'UNKNOWN',\n    completion_time: result.completion_time || new Date().toISOString(),\n    result_summary: result.summary || 'No summary provided',\n    success: result.success || false\n  };\n  \n  if (agentResult.success) {\n    executionStatus.success_count++;\n  } else if (agentResult.status === 'FAILED') {\n    executionStatus.failure_count++;\n  } else {\n    executionStatus.pending_count++;\n  }\n  \n  executionStatus.agent_results.push(agentResult);\n});\n\n// Determine overall status\nif (executionStatus.failure_count > 0) {\n  executionStatus.overall_status = 'PARTIAL_FAILURE';\n} else if (executionStatus.pending_count > 0) {\n  executionStatus.overall_status = 'IN_PROGRESS';\n}\n\n// Generate next actions based on results\nif (executionStatus.failure_count > 0) {\n  executionStatus.next_actions.push('Review failed agent tasks and retry');\n}\n\nif (executionStatus.success_count >= 3) {\n  executionStatus.next_actions.push('Prepare executive summary report');\n}\n\nexecutionStatus.execution_summary = {\n  total_agents: agentResponses.length,\n  success_rate: `${Math.round((executionStatus.success_count / agentResponses.length) * 100)}%`,\n  average_response_time: '2.3 seconds', // Calculate actual average\n  critical_issues_resolved: executionStatus.agent_results.filter(r => r.task_id?.includes('CRITICAL')).length\n};\n\nreturn [executionStatus];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        10
+      ],
+      "id": "c753b92c-8d12-4e27-9804-e79202f94071",
+      "name": "Execution Status Tracking"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/replenisher-agent",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"Content-Type\": \"application/json\",\n  \"X-Orchestrator-ID\": \"{{ $json.orchestrator_id }}\",\n  \"X-Agent-Type\": \"alert\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"task_data\": \"{{ $json.detailed_task }}\",\n  \"orchestrator_id\": \"{{ $json.orchestrator_id }}\",\n  \"priority\": \"{{ $json.context.priority }}\",\n  \"agent_type\": \"alert\",\n  \"context\": \"{{ $json.context }}\",\n  \"alert_config\": \"{{ $json.alert_specific }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        320
+      ],
+      "id": "fa00a011-c404-49b2-a76d-1745b79e7af2",
+      "name": "Call Alert Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data specifically for Alert Agent\nconst taskData = $input.first().json;\nconst orchestrationData = $('Preprocessing1').first().json;\nconst alertTasks = orchestrationData.task_routing.alert_tasks || [];\n\nconst matchedTask = alertTasks.find(task => \n  task.alert_type || task.task_id.includes('ALT-')\n);\n\nconst alertPayload = {\n  orchestrator_id: orchestrationData.trigger_timestamp,\n  agent_type: \"alert\",\n  task_assignment: taskData,\n  detailed_task: matchedTask || {},\n  context: {\n    source_analysis: orchestrationData.source_analysis,\n    priority: taskData.priority,\n    estimated_completion: taskData.estimated_completion\n  },\n  alert_specific: {\n    alert_tasks: alertTasks,\n    escalation_required: alertTasks.some(t => t.escalation_required === true),\n    executive_summary: orchestrationData.execution_summary,\n    crisis_mode: orchestrationData.source_analysis?.alert_level === 'CRITICAL'\n  }\n};\n\nreturn [alertPayload];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -660,
+        320
+      ],
+      "id": "8e259c71-4b51-4fb6-89ac-3346d869dfc6",
+      "name": "Prepare Alert Task"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/replenisher-agent",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"Content-Type\": \"application/json\",\n  \"X-Orchestrator-ID\": \"{{ $json.orchestrator_id }}\",\n  \"X-Agent-Type\": \"finance\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"task_data\": \"{{ $json.detailed_task }}\",\n  \"orchestrator_id\": \"{{ $json.orchestrator_id }}\",\n  \"priority\": \"{{ $json.context.priority }}\",\n  \"agent_type\": \"finance\",\n  \"context\": \"{{ $json.context }}\",\n  \"finance_config\": \"{{ $json.finance_specific }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        120
+      ],
+      "id": "493d7440-7ad4-4b9d-a3f1-4cf562836e7e",
+      "name": "Call Finance Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data specifically for Finance Agent\nconst taskData = $input.first().json;\nconst orchestrationData = $('Preprocessing1').first().json;\nconst financeTasks = orchestrationData.task_routing.finance_tasks || [];\n\nconst matchedTask = financeTasks.find(task => \n  task.financial_impact || task.task_id.includes('FIN-')\n);\n\nconst financePayload = {\n  orchestrator_id: orchestrationData.trigger_timestamp,\n  agent_type: \"finance\",\n  task_assignment: taskData,\n  detailed_task: matchedTask || {},\n  context: {\n    source_analysis: orchestrationData.source_analysis,\n    priority: taskData.priority,\n    estimated_completion: taskData.estimated_completion\n  },\n  finance_specific: {\n    financial_tasks: financeTasks,\n    total_exposure: financeTasks.reduce((sum, task) => {\n      const amount = parseInt(task.financial_impact?.replace(/[^\\d]/g, '') || '0');\n      return sum + amount;\n    }, 0),\n    recovery_mode: financeTasks.some(t => t.action_required.includes('Recovery'))\n  }\n};\n\nreturn [financePayload];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -660,
+        120
+      ],
+      "id": "ad772e52-1899-46af-8c51-bffd27957325",
+      "name": "Prepare Finance Task"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/replenisher-agent",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"Content-Type\": \"application/json\",\n  \"X-Orchestrator-ID\": \"{{ $json.orchestrator_id }}\",\n  \"X-Agent-Type\": \"warehouse\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"task_data\": \"{{ $json.detailed_task }}\",\n  \"orchestrator_id\": \"{{ $json.orchestrator_id }}\",\n  \"priority\": \"{{ $json.context.priority }}\",\n  \"agent_type\": \"warehouse\",\n  \"context\": \"{{ $json.context }}\",\n  \"warehouse_config\": \"{{ $json.warehouse_specific }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        -80
+      ],
+      "id": "bbc94e2a-6988-4ee3-aebb-6bc53a177426",
+      "name": "Call Warehouse Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data specifically for Warehouse Agent\nconst taskData = $input.first().json;\nconst orchestrationData = $('Preprocessing1').first().json;\nconst warehouseTasks = orchestrationData.task_routing.warehouse_tasks || [];\n\nconst matchedTask = warehouseTasks.find(task => \n  task.from_plant || task.to_plant || task.task_id.includes('WH-')\n);\n\nconst warehousePayload = {\n  orchestrator_id: orchestrationData.trigger_timestamp,\n  agent_type: \"warehouse\",\n  task_assignment: taskData,\n  detailed_task: matchedTask || {},\n  context: {\n    source_analysis: orchestrationData.source_analysis,\n    priority: taskData.priority,\n    estimated_completion: taskData.estimated_completion\n  },\n  warehouse_specific: {\n    plant_operations: warehouseTasks,\n    transfer_required: warehouseTasks.some(t => t.from_plant && t.to_plant),\n    rebalancing_mode: warehouseTasks.some(t => t.issue.includes('Imbalance'))\n  }\n};\n\nreturn [warehousePayload];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -660,
+        -80
+      ],
+      "id": "1c9779c7-6987-402d-93a6-19361178fddb",
+      "name": "Prepare Warehouse Task"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the current task data from the loop\nconst taskData = $input.first().json;\n\nconsole.log('Task Data received:', taskData);\n\n// Create replenisher-specific payload\nconst replenisherPayload = {\n  // Basic orchestration info\n  orchestrator_id: `ORCH-${Date.now()}`,\n  agent_type: \"replenisher\",\n  priority: taskData.priority || \"MEDIUM\",\n  \n  // Task assignment details\n  task_data: {\n    task_id: taskData.task_id,\n    agent_name: taskData.agent_name,\n    material: extractMaterialFromTaskId(taskData.task_id),\n    shortage_quantity: generateShortageQuantity(taskData.priority),\n    required_by: taskData.estimated_completion,\n    supplier_contact: taskData.priority === \"CRITICAL\" ? \"Required\" : \"Optional\"\n  },\n  \n  // Context information\n  context: {\n    source_analysis: {\n      alert_level: taskData.priority,\n      assigned_at: taskData.assigned_at,\n      status: taskData.status\n    },\n    priority: taskData.priority,\n    estimated_completion: taskData.estimated_completion\n  },\n  \n  // Replenisher-specific configuration\n  replenisher_config: {\n    supplier_contacts_needed: taskData.priority === \"CRITICAL\",\n    emergency_mode: taskData.priority === \"CRITICAL\",\n    auto_approve_limit: taskData.priority === \"CRITICAL\" ? 50000 : 10000\n  }\n};\n\n// Helper function to extract material from task ID\nfunction extractMaterialFromTaskId(taskId) {\n  const materials = [\n    \"Raw Material A\",\n    \"Raw Material B\", \n    \"Component C\",\n    \"Chemical D\",\n    \"Packaging Material\"\n  ];\n  \n  // Use task ID to determine material (simple hash-based selection)\n  const hash = taskId.split('-')[1] || '0';\n  const index = parseInt(hash.slice(-1)) % materials.length;\n  return materials[index];\n}\n\n// Helper function to generate shortage quantity based on priority\nfunction generateShortageQuantity(priority) {\n  switch(priority) {\n    case \"CRITICAL\":\n      return Math.floor(Math.random() * 3000) + 2000; // 2000-5000\n    case \"HIGH\":\n      return Math.floor(Math.random() * 2000) + 1000; // 1000-3000\n    case \"MEDIUM\":\n      return Math.floor(Math.random() * 1500) + 500;  // 500-2000\n    default:\n      return Math.floor(Math.random() * 1000) + 300;  // 300-1300\n  }\n}\n\nconsole.log('Replenisher Payload created:', replenisherPayload);\n\nreturn [{ json: replenisherPayload }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -660,
+        -480
+      ],
+      "id": "63419d6e-900f-4f51-b3ce-861dd9f02ae3",
+      "name": "Prepare Replenisher Data"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2037979361,
+          "mode": "list",
+          "cachedResultName": "Orchestration_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=2037979361"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TIMESTAMP": "={{ $json.trigger_timestamp }}",
+            "TRIGGER_SOURCE": "Data Integration Agent",
+            "DECISIONS_MADE": "={{ $json.orchestration_decisions.length }}",
+            "TASKS_CREATED": "={{ $json.execution_summary.total_tasks_created }}",
+            "AGENTS_ACTIVATED": "={{ $json.execution_summary.agents_activated }}",
+            "EXECUTION_STATUS": "={{ $json.execution_summary.orchestration_status }}",
+            "NOTES": "=Financial Impact: {{ $json.execution_summary.estimated_financial_impact }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "TIMESTAMP",
+              "displayName": "TIMESTAMP",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TRIGGER_SOURCE",
+              "displayName": "TRIGGER_SOURCE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DECISIONS_MADE",
+              "displayName": "DECISIONS_MADE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TASKS_CREATED",
+              "displayName": "TASKS_CREATED",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AGENTS_ACTIVATED",
+              "displayName": "AGENTS_ACTIVATED",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EXECUTION_STATUS",
+              "displayName": "EXECUTION_STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NOTES",
+              "displayName": "NOTES",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -1320,
+        10
+      ],
+      "id": "cea6ed9c-56b7-45ee-96e6-49567659564f",
+      "name": "Add Log Orchestration Plan",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TbW6rZxS6WqhaEvr",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        230
+      ],
+      "id": "9bf7994b-4871-402d-856f-be5ddfb77c46",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cxtJBuayokX9ROIE",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        880,
+        -10
+      ],
+      "id": "8cf4c6ff-e6ca-448c-a821-7fe10307e260",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "batchSize": 2,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1320,
+        570
+      ],
+      "id": "8b93684f-cb28-4a27-847f-34e7f968b08e",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Master Orchestrator Agent - Task Classification and Routing\nconst incomingData = $input.first().json;\n\nlet orchestrationPlan = {\n  trigger_timestamp: new Date().toISOString(),\n  source_analysis: incomingData,\n  task_routing: {\n    replenisher_tasks: [],\n    warehouse_tasks: [],\n    finance_tasks: [],\n    alert_tasks: []\n  },\n  execution_plan: {\n    immediate_tasks: [],\n    scheduled_tasks: [],\n    monitoring_tasks: []\n  },\n  agent_assignments: [],\n  orchestration_decisions: []\n};\n\n// Extract critical information from Lab 1 analysis\nconst analysis = incomingData.analysis || incomingData;\nconst alertLevel = incomingData.alert_level || 'MEDIUM';\nconst actionableTasks = incomingData.actionable_tasks || [];\n\n// Decision Logic: Route tasks based on content analysis\nconst analysisText = JSON.stringify(analysis).toLowerCase();\n\n// 1. REPLENISHER AGENT TASKS\nif (analysisText.includes('stockout') || analysisText.includes('zero units') || analysisText.includes('m-1003')) {\n  orchestrationPlan.task_routing.replenisher_tasks.push({\n    task_id: `REP-${Date.now()}-001`,\n    material: 'M-1003',\n    issue: 'Critical Stockout',\n    priority: 'CRITICAL',\n    action_required: 'Emergency Replenishment',\n    estimated_cost: 'TBD',\n    lead_time: '24-48 hours',\n    supplier_contact: 'Required'\n  });\n  \n  orchestrationPlan.orchestration_decisions.push({\n    decision: 'Route M-1003 stockout to Replenisher Agent',\n    reasoning: 'Zero stock detected with matched inbound/outbound flow',\n    risk_level: 'HIGH'\n  });\n}\n\nif (analysisText.includes('surplus') || analysisText.includes('800 units') || analysisText.includes('m-1001')) {\n  orchestrationPlan.task_routing.replenisher_tasks.push({\n    task_id: `REP-${Date.now()}-002`,\n    material: 'M-1001',\n    issue: 'Overstock Situation',\n    priority: 'MEDIUM',\n    action_required: 'Pause Future Orders',\n    estimated_savings: '~200,000 CNY',\n    supplier: 'Supplier-A'\n  });\n}\n\n// 2. WAREHOUSE AGENT TASKS  \nif (analysisText.includes('95%') || analysisText.includes('china-warehouse') || analysisText.includes('rebalance')) {\n  orchestrationPlan.task_routing.warehouse_tasks.push({\n    task_id: `WH-${Date.now()}-001`,\n    issue: 'Severe Plant Imbalance',\n    priority: 'HIGH',\n    action_required: 'Inventory Rebalancing',\n    from_plant: 'CHINA-WAREHOUSE',\n    to_plant: 'SINGAPORE-WAREHOUSE',\n    estimated_transfer: '300-400 units M-1001',\n    cost_benefit: 'Risk diversification + reduced holding costs'\n  });\n  \n  orchestrationPlan.orchestration_decisions.push({\n    decision: 'Initiate cross-plant inventory rebalancing',\n    reasoning: '95% inventory concentration creates geographical risk',\n    expected_outcome: 'Better risk distribution and plant utilization'\n  });\n}\n\n// 3. FINANCE AGENT TASKS\nif (analysisText.includes('250,000 cny') || analysisText.includes('scrap') || analysisText.includes('m-1002')) {\n  orchestrationPlan.task_routing.finance_tasks.push({\n    task_id: `FIN-${Date.now()}-001`,\n    issue: 'SCRAP Material Financial Loss',\n    priority: 'CRITICAL',\n    action_required: 'Loss Recovery Investigation',\n    material: 'M-1002',\n    financial_impact: '250,000 CNY',\n    recovery_options: ['RTV to Supplier-B', 'Insurance Claim', 'Salvage Value'],\n    investigation_deadline: '48 hours'\n  });\n}\n\nif (analysisText.includes('150,000 cny') || analysisText.includes('m-1004') || analysisText.includes('dead stock')) {\n  orchestrationPlan.task_routing.finance_tasks.push({\n    task_id: `FIN-${Date.now()}-002`,\n    issue: 'High-Value Dead Stock',\n    priority: 'MEDIUM',\n    action_required: 'Liquidation Assessment',\n    material: 'M-1004',\n    tied_up_capital: '150,000 CNY',\n    options: ['Secondary market sale', 'RTV negotiation', 'Write-off'],\n    timeline: '2 weeks'\n  });\n}\n\n// 4. ALERT AGENT TASKS\norchestrationPlan.task_routing.alert_tasks.push({\n  task_id: `ALT-${Date.now()}-001`,\n  alert_type: 'Executive Summary',\n  priority: alertLevel,\n  recipients: ['Supply Chain Director', 'Plant Managers', 'Finance Manager'],\n  content_type: 'Dashboard Update + Email',\n  frequency: 'Immediate + Daily Follow-up'\n});\n\nif (alertLevel === 'CRITICAL') {\n  orchestrationPlan.task_routing.alert_tasks.push({\n    task_id: `ALT-${Date.now()}-002`,\n    alert_type: 'Crisis Management',\n    priority: 'CRITICAL',\n    recipients: ['CEO', 'COO', 'Supply Chain Director'],\n    content_type: 'Urgent SMS + Call',\n    escalation_required: true\n  });\n}\n\n// Create Agent Assignments\nconst allTasks = [\n  ...orchestrationPlan.task_routing.replenisher_tasks,\n  ...orchestrationPlan.task_routing.warehouse_tasks,\n  ...orchestrationPlan.task_routing.finance_tasks,\n  ...orchestrationPlan.task_routing.alert_tasks\n];\n\nallTasks.forEach(task => {\n  let agentName = '';\n  if (task.task_id.startsWith('REP-')) agentName = 'Replenisher Agent';\n  else if (task.task_id.startsWith('WH-')) agentName = 'Warehouse Agent';\n  else if (task.task_id.startsWith('FIN-')) agentName = 'Finance Agent';\n  else if (task.task_id.startsWith('ALT-')) agentName = 'Alert Agent';\n  \n  orchestrationPlan.agent_assignments.push({\n    agent_name: agentName,\n    task_id: task.task_id,\n    priority: task.priority,\n    assigned_at: new Date().toISOString(),\n    status: 'ASSIGNED',\n    estimated_completion: getEstimatedCompletion(task.priority)\n  });\n});\n\n// Categorize by execution timing\nallTasks.forEach(task => {\n  if (task.priority === 'CRITICAL') {\n    orchestrationPlan.execution_plan.immediate_tasks.push(task);\n  } else if (task.priority === 'HIGH') {\n    orchestrationPlan.execution_plan.scheduled_tasks.push(task);\n  } else {\n    orchestrationPlan.execution_plan.monitoring_tasks.push(task);\n  }\n});\n\nfunction getEstimatedCompletion(priority) {\n  const now = new Date();\n  switch(priority) {\n    case 'CRITICAL': \n      now.setHours(now.getHours() + 2);\n      break;\n    case 'HIGH':\n      now.setHours(now.getHours() + 8);\n      break;\n    case 'MEDIUM':\n      now.setDate(now.getDate() + 1);\n      break;\n    default:\n      now.setDate(now.getDate() + 3);\n  }\n  return now.toISOString();\n}\n\n// Summary\norchestrationPlan.execution_summary = {\n  total_tasks_created: allTasks.length,\n  critical_tasks: orchestrationPlan.execution_plan.immediate_tasks.length,\n  agents_activated: [...new Set(orchestrationPlan.agent_assignments.map(a => a.agent_name))].length,\n  estimated_financial_impact: '400,000 CNY (250K loss + 150K tied capital)',\n  orchestration_status: 'ACTIVE',\n  next_review: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() // 2 hours\n};\n\nreturn [orchestrationPlan];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1540,
+        520
+      ],
+      "id": "b381c300-9481-45b7-bb00-f6333b66f770",
+      "name": "Task Classification"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1835731665,
+          "mode": "list",
+          "cachedResultName": "Inventory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/143Fy4ASTfqV6G7RbQPRIaDj0DMJ_tu1PLOSW8WhBZYY/edit#gid=1835731665"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2780,
+        395
+      ],
+      "id": "b117ce89-e200-406b-a10a-55351ddb6195",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "WrxWaYdRCykjlpPV",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/Master-Orchestrator-Agent",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2780,
+        1090
+      ],
+      "id": "6f3dc732-6ded-4d62-af70-b119d240e3f7",
+      "name": "Call Master Orchestrator Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/replenisher-agent",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"Content-Type\": \"application/json\",\n  \"X-Orchestrator-ID\": \"{{ $json.orchestrator_id }}\",\n  \"X-Agent-Type\": \"replenisher\",\n  \"X-Request-ID\": \"REQ-{{ Date.now() }}\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2780,
+        1350
+      ],
+      "id": "223dc7ab-145a-4845-8680-a48c0639b2ff",
+      "name": "Call Replenisher Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gemini Alert Generator1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Read Current Stock1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Material Info1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Inbound",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Outbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Current Stock1": {
+      "main": [
+        [
+          {
+            "node": "Merge Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Material Info1": {
+      "main": [
+        [
+          {
+            "node": "Merge Input",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read Inbound": {
+      "main": [
+        [
+          {
+            "node": "Merge Input",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Read Outbound": {
+      "main": [
+        [
+          {
+            "node": "Merge Input",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Gemini Alert Generator1": {
+      "main": [
+        [
+          {
+            "node": "Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Task Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in Data Quality Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Input": {
+      "main": [
+        [
+          {
+            "node": "Preprocessing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preprocessing1": {
+      "main": [
+        [
+          {
+            "node": "Gemini Alert Generator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Orchestrator Response": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Replenishment Actions": {
+      "main": [
+        [
+          {
+            "node": "Prepare Orchestrator Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Purchase Order": {
+      "main": [
+        [
+          {
+            "node": "Execute Replenishment Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Replenisher Request": {
+      "main": [
+        [
+          {
+            "node": "Analyze Material Requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Material Requirements": {
+      "main": [
+        [
+          {
+            "node": "Create Purchase Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preprocessing": {
+      "main": [
+        [
+          {
+            "node": "Separate Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separate Agent": {
+      "main": [
+        [
+          {
+            "node": "Prepare Replenisher Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Warehouse Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Finance Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Alert Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Executive Escalation": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master Orchestrator Agent": {
+      "main": [
+        [
+          {
+            "node": "Executive Escalation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execution Status Tracking": {
+      "main": [
+        [
+          {
+            "node": "Master Orchestrator Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Task Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Alert Task": {
+      "main": [
+        [
+          {
+            "node": "Call Alert Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Finance Task": {
+      "main": [
+        [
+          {
+            "node": "Call Finance Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Warehouse Task": {
+      "main": [
+        [
+          {
+            "node": "Call Warehouse Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Replenisher Data": {
+      "main": [
+        [
+          {
+            "node": "Process Replenisher Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Master Orchestrator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Execution Status Tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Alert Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Finance Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Warehouse Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Preprocessing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task Classification": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add Log Orchestration Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Current Stock1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Material Info1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Inbound",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Outbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Replenisher Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0534b3fa-c964-45b3-8713-26c04765e706",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c39e1a9a4579471ffc7b2a4413c053c9701ae370fe3bca3f0daa635a16a7ee8a"
+  },
+  "id": "rBvnAStSjRB096FR",
+  "tags": []
+}
